@@ -51,10 +51,20 @@ composer update
 ```
 php artisan migrate
 ```
-and you cxan also run the following if you wish to run the tests
+and you can also run the following if you wish to run the tests
 ```
 php artisan test
 ```
 
-
 5. You can access the website from [http://localhost](http://localhost)
+
+## Usage
+This is a RESTful API. Authentication has not been implemented for this demo.
+
+1. To create a company, send a POST request to http://localhost/api/companies with two parameters, 'name' and 'slug'
+2. To fetch a company, send a GET request to http://localhost/api/companies/{companyId}
+3. To fetch all companies (paginated), send a GET request to http://localhost/api/companies. You can add a 'page' parameter with an integer value to load a specific page.
+4. To update a company, send a PUT request to http://localhost/api/companies/{companyId} with the name parameter. The slug does not need to be provided as it will be auto generated from the name.
+4. To delete a company, send a DELETE request to http://localhost/api/companies/{companyId}
+
+Contacts and Notes have similar API endpoints, except that 'companies' will be replaced with contacts, and for notes it will be replaced with 'notes'

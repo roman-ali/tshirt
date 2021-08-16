@@ -119,7 +119,7 @@ class CompanyControllerTest extends TestCase
      *
      * @return void
      */
-    public function test_can_return_products_collection_paginated()
+    public function test_can_return_companies_collection_paginated()
     {
         list($company1, $company2, $company3) = Company::factory()->count(3)->create();
      
