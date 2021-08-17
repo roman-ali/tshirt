@@ -61,10 +61,33 @@ php artisan test
 ## Usage
 This is a RESTful API. Authentication has not been implemented for this demo.
 
+
+
+The properties for companies are:
+id, name, slug, created_at, updated_at
+
+The properties for contacts are:
+id, company_id, name, phone_number, created_at, updated_at
+
+The properties for notes are:
+id, contact_id, note, created_at, updated_at
+
+
+
 1. To create a company, send a POST request to http://localhost/api/companies with two parameters, 'name' and 'slug'
+ - Note: bulk creation has not been implemented as it has tradeoffs in terms of needing to do database transaction, and presenting errors back to the client
 2. To fetch a company, send a GET request to http://localhost/api/companies/{companyId}
 3. To fetch all companies (paginated), send a GET request to http://localhost/api/companies. You can add a 'page' parameter with an integer value to load a specific page.
-4. To update a company, send a PUT request to http://localhost/api/companies/{companyId} with the name parameter. The slug does not need to be provided as it will be auto generated from the name.
-4. To delete a company, send a DELETE request to http://localhost/api/companies/{companyId}
+4. To update a company, send a PATCH request to http://localhost/api/companies/{companyId} with the name parameter.
+ ​- Note: PATCH requests were preferred over PUT for update operations, because PUT expects all model properties as parameters, and for the purposes of this demo it was more convenient to not have to include the timestamps, or in the case of companies the slug property, since it makes more sense to calculate the slug from the name, thus helping to maintain consistency and predictability between name and slug.
+5. To delete a company, send a DELETE request to http://localhost/api/companies/{companyId}
 
-Contacts and Notes have similar API endpoints, except that 'companies' will be replaced with contacts, and for notes it will be replaced with 'notes'
+
+Contacts and Notes have similar API endpoints as above, except that 'companies' will be replaced with 'contacts', and for notes it will be replaced with 'notes'.
+
+
+6. To fetch a paginated collection of all contacts at a company, send a GET request to http://localhost/api/contacts/company/{companyId}
+
+7. To fetch a paginated collection of all contacts matching a name or company name, send a GET request to http://localhost/api/contacts with parameter 'name' or 'company_name'
+
+8. To fetch a paginated collection of all notes for a contact, send a GET request to http://localhost/api/notes/contact/{contactId}

@@ -16,31 +16,6 @@ class CompanyControllerTest extends TestCase
 
     /**
      * @test
-     *
-     * @return void
-     */
-    /*
-    public function test_unauthenticated_users_cannot_access_company_api_endpoints()
-    {
-        $index = $this->json('GET', '/api/companies');
-        $index->assertStatus(401);
-        
-        $store = $this->json('POST', '/api/companies');
-        $store->assertStatus(401);
-        
-        $show = $this->json('GET', '/api/companies/0');
-        $show->assertStatus(401);
-        
-        $update = $this->json('PUT', '/api/companies/0');
-        $update->assertStatus(401);
-        
-        $destroy = $this->json('DELETE', '/api/companies/0');
-        $destroy->assertStatus(401);
-    }
-    */
-
-    /**
-     * @test
      * 
      * @return void
      */
@@ -48,17 +23,8 @@ class CompanyControllerTest extends TestCase
     {
         $faker = Factory::create();
 
-        $user = User::factory()->create();
-     
-        /*
-        $response = $this->actingAs($user, 'api')->json('POST', '/api/companies', [
-            'name' => $name = $faker->company,
-            'slug' => Str::slug($name),
-        ]);
-        */
         $response = $this->json('POST', '/api/companies', [
             'name' => $name = $faker->company,
-            'slug' => Str::slug($name),
         ]);
 
         $response->assertJsonStructure([
@@ -83,10 +49,7 @@ class CompanyControllerTest extends TestCase
     {
         $company = Company::factory()->create();
 
-        $user = User::factory()->create();
-     
-        //$response = $this->actingAs($user, 'api')->json('GET', "/api/companies/{$company->id}");
-        $response = $this->actingAs($user, 'api')->json('GET', "/api/companies/{$company->id}");
+        $response = $this->json('GET', "/api/companies/{$company->id}");
 
         $response->assertStatus(200)
             ->assertExactJson([
@@ -106,9 +69,6 @@ class CompanyControllerTest extends TestCase
      */
     public function test_fail_with_404_when_company_not_found()
     {
-        $user = User::factory()->create();
-     
-        //$response = $this->actingAs($user, 'api')->json('GET', 'api/companies/0');
         $response = $this->json('GET', 'api/companies/0');
 
         $response->assertStatus(404);
@@ -119,13 +79,10 @@ class CompanyControllerTest extends TestCase
      *
      * @return void
      */
-    public function test_can_return_companies_collection_paginated()
+    public function test_can_return_paginated_collection_of_companies()
     {
         list($company1, $company2, $company3) = Company::factory()->count(3)->create();
      
-        $user = User::factory()->create();
-     
-        //$response = $this->actingAs($user, 'api')->json('GET', '/api/companies');
         $response = $this->json('GET', '/api/companies');
 
         $response->assertStatus(200)
@@ -153,10 +110,7 @@ class CompanyControllerTest extends TestCase
      */
     public function test_fail_with_404_when_updatable_company_not_found()
     {
-        $user = User::factory()->create();
-     
-        //$response = $this->actingAs($user, 'api')->json('PUT', 'api/companies/0');
-        $response = $this->json('PUT', 'api/companies/0');
+        $response = $this->json('PATCH', 'api/companies/0');
 
         $response->assertStatus(404);
     }
@@ -170,14 +124,7 @@ class CompanyControllerTest extends TestCase
     {
         $company = Company::factory()->create();
 
-        $user = User::factory()->create();
-     
-        /*
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/companies/{$company->id}", [
-            'name' => $newCompanyName = $company->name . '_updated',
-        ]);
-        */
-        $response = $this->json('PUT', "api/companies/{$company->id}", [
+        $response = $this->json('PATCH', "api/companies/{$company->id}", [
             'name' => $newCompanyName = $company->name . '_updated',
         ]);
 
@@ -197,9 +144,6 @@ class CompanyControllerTest extends TestCase
      */
     public function test_fail_with_404_when_deletable_company_not_found()
     {
-        $user = User::factory()->create();
-     
-        //$response = $this->actingAs($user, 'api')->json('DELETE', 'api/companies/0');
         $response = $this->json('DELETE', 'api/companies/0');
 
         $response->assertStatus(404);
@@ -214,9 +158,6 @@ class CompanyControllerTest extends TestCase
     {
         $company = Company::factory()->create();
 
-        $user = User::factory()->create();
-     
-        //$response = $this->actingAs($user, 'api')->json('DELETE', "api/companies/{$company->id}");
         $response = $this->json('DELETE', "api/companies/{$company->id}");
 
         $response->assertStatus(204)

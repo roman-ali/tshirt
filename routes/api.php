@@ -25,18 +25,21 @@ Route::namespace('Api')->group(function () {
     Route::post('/companies',             [CompanyController::class, 'store']);
     Route::get('/companies',              [CompanyController::class, 'index']);
     Route::get('/companies/{company}',    [CompanyController::class, 'show']);
-    Route::put('/companies/{company}',    [CompanyController::class, 'update']);
+    Route::patch('/companies/{company}',  [CompanyController::class, 'update']);
     Route::delete('/companies/{company}', [CompanyController::class, 'destroy']);
     
-    Route::post('/contacts',             [ContactController::class, 'store']);
-    Route::get('/contacts',              [ContactController::class, 'index']);
-    Route::get('/contacts/{contact}',    [ContactController::class, 'show']);
-    Route::put('/contacts/{contact}',    [ContactController::class, 'update']);
-    Route::delete('/contacts/{contact}', [ContactController::class, 'destroy']);
+    Route::post('/contacts',                  [ContactController::class, 'store']);
+    Route::get('/contacts',                   [ContactController::class, 'index']);
+    Route::get('/contacts/{contact}',         [ContactController::class, 'show']);
+    Route::patch('/contacts/{contact}',       [ContactController::class, 'update']);
+    Route::delete('/contacts/{contact}',      [ContactController::class, 'destroy']);
+    Route::get('/contacts/company/{company}', [ContactController::class, 'showByCompany']);
     
-    Route::post('/notes',          [NoteController::class, 'store']);
-    Route::get('/notes',           [NoteController::class, 'index']);
-    Route::get('/notes/{note}',    [NoteController::class, 'show']);
-    Route::put('/notes/{note}',    [NoteController::class, 'update']);
-    Route::delete('/notes/{note}', [NoteController::class, 'destroy']);
+    Route::post('/notes',                  [NoteController::class, 'store']);
+    Route::get('/notes',                   [NoteController::class, 'index']);
+    Route::get('/notes/{note}',            [NoteController::class, 'show']);
+    Route::patch('/notes/{note}',          [NoteController::class, 'update']);
+    Route::delete('/notes/{note}',         [NoteController::class, 'destroy']);
+    Route::get('/notes/contact/{contact}', [NoteController::class, 'showByContact']);
+
 });

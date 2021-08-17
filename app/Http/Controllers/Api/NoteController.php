@@ -39,6 +39,17 @@ class NoteController extends Controller
     }
 
     /**
+     * get a paginated collection of notes by contact
+     *
+     * @param Contact $contact
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showByContact(Contact $contact)
+    {
+        return new NoteCollection($contact->notes()->paginate());
+    }
+
+    /**
      * show a note
      *
      * @param Note $note

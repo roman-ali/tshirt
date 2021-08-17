@@ -11,34 +11,11 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
+use function PHPUnit\Framework\assertGreaterThan;
+
 class ContactControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    /**
-     * @test
-     *
-     * @return void
-     */
-    /*
-    public function test_unauthenticated_users_cannot_access_contact_api_endpoints()
-    {
-        $index = $this->json('GET', '/api/contacts');
-        $index->assertStatus(401);
-
-        $store = $this->json('POST', '/api/contacts');
-        $store->assertStatus(401);
-
-        $show = $this->json('GET', '/api/contacts/0');
-        $show->assertStatus(401);
-
-        $update = $this->json('PUT', '/api/contacts/0');
-        $update->assertStatus(401);
-
-        $destroy = $this->json('DELETE', '/api/contacts/0');
-        $destroy->assertStatus(401);
-    }
-    */
 
     /**
      * @test
@@ -49,17 +26,8 @@ class ContactControllerTest extends TestCase
     {
         $faker = Factory::create();
 
-        $user = User::factory()->create();
-
         $company = Company::factory()->create();
 
-        /*
-        $response = $this->actingAs($user, 'api')->json('POST', '/api/contacts', [
-            'company_id'   => $company->id,
-            'name'         => $name = $faker->name,
-            'phone_number' => $phoneNumber = $faker->phoneNumber,
-        ]);
-        */
         $response = $this->json('POST', '/api/contacts', [
             'company_id'   => $company->id,
             'name'         => $name = $faker->name,
@@ -90,9 +58,6 @@ class ContactControllerTest extends TestCase
     {
         $contact = Contact::factory()->for(Company::factory())->create();
 
-        $user = User::factory()->create();
-
-        //$response = $this->actingAs($user, 'api')->json('GET', "/api/contacts/{$contact->id}");
         $response = $this->json('GET', "/api/contacts/{$contact->id}");
 
         $response->assertStatus(200)
@@ -115,9 +80,6 @@ class ContactControllerTest extends TestCase
      */
     public function test_fail_with_404_when_contact_not_found()
     {
-        $user = User::factory()->create();
-
-        //$response = $this->actingAs($user, 'api')->json('GET', 'api/contacts/0');
         $response = $this->json('GET', 'api/contacts/0');
 
         $response->assertStatus(404);
@@ -128,13 +90,10 @@ class ContactControllerTest extends TestCase
      *
      * @return void
      */
-    public function test_can_return_products_collection_paginated()
+    public function test_can_return_paginated_collection_of_contacts()
     {
         list($contact1, $contact2, $contact3) = Contact::factory()->for(Company::factory())->count(3)->create();
 
-        $user = User::factory()->create();
-
-        //$response = $this->actingAs($user, 'api')->json('GET', '/api/contacts');
         $response = $this->json('GET', '/api/contacts');
 
         $response->assertStatus(200)
@@ -156,16 +115,109 @@ class ContactControllerTest extends TestCase
     }
 
     /**
+     * test
+     *
+     * @return void
+     */
+    public function test_can_return_paginated_collection_of_contacts_by_company()
+    {
+        $company = Company::factory()->create();
+
+        list($contact1, $contact2, $contact3) = Contact::factory()->for($company)->count(3)->create();
+
+        $response = $this->json('GET', "/api/contacts/company/{$company->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data'  => [
+                    '*' => ['id', 'company_id', 'name', 'phone_number', 'created_at', 'updated_at',],
+                ],
+                'links' => ['first', 'last', 'prev', 'next'],
+                'meta'  => [
+                    'current_page',
+                    'last_page',
+                    'from',
+                    'to',
+                    'path',
+                    'per_page',
+                    'total',
+                ],
+            ]);
+    }
+
+    /**
+     * test
+     *
+     * @return void
+     */
+    public function test_can_return_non_empty_paginated_collection_of_contacts_by_valid_name_search()
+    {
+
+        list($contact1, $contact2, $contact3) = Contact::factory()->for(Company::factory())->count(3)->create();
+
+        $response = $this->json('GET', "/api/contacts?name={$contact2->name}");
+
+        $response->assertStatus(200);
+
+        assertGreaterThan(0, count($response->decodeResponseJson()['data']));
+    }
+
+    /**
+     * test
+     *
+     * @return void
+     */
+    public function test_can_return_empty_paginated_collection_of_contacts_by_invalid_name_search()
+    {
+
+        list($contact1, $contact2, $contact3) = Contact::factory()->for(Company::factory())->count(3)->create();
+
+        $response = $this->json('GET', "/api/contacts?name=123");
+
+        $response->assertStatus(200)->assertJsonCount(0, 'data');
+    }
+
+    /**
+     * test
+     *
+     * @return void
+     */
+    public function test_can_return_non_empty_paginated_collection_of_contacts_by_valid_company_name_search()
+    {
+
+        $company = Company::factory()->create();
+        list($contact1, $contact2, $contact3) = Contact::factory()->for($company)->count(3)->create();
+
+        $response = $this->json('GET', "/api/contacts?company_name={$company->name}");
+
+        $response->assertStatus(200);
+
+        assertGreaterThan(0, count($response->decodeResponseJson()['data']));
+    }
+
+    /**
+     * test
+     *
+     * @return void
+     */
+    public function test_can_return_empty_paginated_collection_of_contacts_by_invalid_company_name_search()
+    {
+        $company = Company::factory()->create();
+        list($contact1, $contact2, $contact3) = Contact::factory()->for($company)->count(3)->create();
+
+        $response = $this->json('GET', "/api/contacts?company_name=123");
+
+        $response->assertStatus(200)->assertJsonCount(0, 'data');
+    }
+
+    /**
      * @test
      *
      * @return void
      */
     public function test_fail_with_404_when_updatable_contact_not_found()
     {
-        $user = User::factory()->create();
-
-        //$response = $this->actingAs($user, 'api')->json('PUT', 'api/contacts/0');
-        $response = $this->json('PUT', 'api/contacts/0');
+        $response = $this->json('PATCH', 'api/contacts/0');
 
         $response->assertStatus(404);
     }
@@ -179,15 +231,7 @@ class ContactControllerTest extends TestCase
     {
         $contact = Contact::factory()->for(Company::factory())->create();
 
-        $user = User::factory()->create();
-
-        /*
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/contacts/{$contact->id}", [
-            'name'         => $newContactName = $contact->name . ' The Second',
-            'phone_number' => $contact->phone_number,
-        ]);
-        */
-        $response = $this->json('PUT', "api/contacts/{$contact->id}", [
+        $response = $this->json('PATCH', "api/contacts/{$contact->id}", [
             'name'         => $newContactName = $contact->name . ' The Second',
             'phone_number' => $contact->phone_number,
         ]);
@@ -209,9 +253,6 @@ class ContactControllerTest extends TestCase
      */
     public function test_fail_with_404_when_deletable_contact_not_found()
     {
-        $user = User::factory()->create();
-
-        //$response = $this->actingAs($user, 'api')->json('DELETE', 'api/contacts/0');
         $response = $this->json('DELETE', 'api/contacts/0');
 
         $response->assertStatus(404);
@@ -226,9 +267,6 @@ class ContactControllerTest extends TestCase
     {
         $contact = Contact::factory()->for(Company::factory())->create();
 
-        $user = User::factory()->create();
-
-        //$response = $this->actingAs($user, 'api')->json('DELETE', "api/contacts/{$contact->id}");
         $response = $this->json('DELETE', "api/contacts/{$contact->id}");
 
         $response->assertStatus(204)

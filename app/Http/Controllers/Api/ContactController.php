@@ -37,6 +37,19 @@ class ContactController extends Controller
      */
     public function index()
     {
+        $request = request();
+
+        if ($request->filled('name')) {
+            return new ContactCollection(Contact::with('notes')
+                ->where('name', $request->name)->paginate());
+        }
+
+        if ($request->filled('company_name')) {
+            return new ContactCollection(Contact::with('notes')
+                ->whereHas('company', fn ($company) => $company->where('name', $request->company_name))
+                ->paginate());
+        }
+
         return new ContactCollection(Contact::with('notes')->paginate());
     }
 
@@ -50,6 +63,17 @@ class ContactController extends Controller
     {
         $contact->load('notes');
         return response()->json(new ContactResource($contact));
+    }
+
+    /**
+     * get a paginated collection of contacts by company
+     *
+     * @param Company $company
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showByCompany(Company $company)
+    {
+        return new ContactCollection($company->contacts()->with('notes')->paginate());
     }
 
     /**
